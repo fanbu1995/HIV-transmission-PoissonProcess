@@ -13,6 +13,7 @@
 library(tidyverse)
 library(bayestestR)
 library(xtable)
+library(wesanderson)
 # setwd('~/Documents/Research/HIV_transmission_flow/')
 # should set wd it to the path of results files and real data files 
 
@@ -75,7 +76,7 @@ ggplot(probs_summary, aes(x=prob, y=avg)) +
 
 
 # 2. spatial points colored with posterior type probs-------
-# SEE "data_plots.R" file
+# omitted; the code is subsumed into part 5 and 6
 
 
 
@@ -184,7 +185,7 @@ ggplot(source.males, aes(x=sourceAge)) +
             size = 6)+
   scale_y_continuous(limits = ylims)+
   scale_x_continuous(limits = xlims)+
-  labs(x='male source age for young women (15-25)', y='')+
+  labs(x='male source age for adolescent and young women (15-24)', y='')+
   theme_bw(base_size = 14)
 
 ## male recipient age
@@ -208,7 +209,7 @@ ggplot(rec.males, aes(x=sourceAge)) +
             size = 6)+
   scale_y_continuous(limits = ylims)+
   scale_x_continuous(limits = xlims)+
-  labs(x='male recipient age from young women (15-25)', y='')+
+  labs(x='male recipient age from dolescent and young women (15-24)', y='')+
   theme_bw(base_size = 14)
 
 
@@ -753,7 +754,7 @@ ggarrange(ggarrange(preMFcolored,
 ## (June 11 updated version)
 ## (June 20 updates again)
 
-# (i) try the full model ones (only MF and FM directions) for proof of concept
+## July 19 2022: add diagonal lines for more clear comparison on symmetry
 
 ## the level function shared by Melodie M. 
 getLevel <- function(x,y,z,prob=0.95) {
@@ -804,6 +805,7 @@ MFlabels = MFdens %>%
 (
   allMFcolored_contours = 
     ggplot() +
+    geom_abline(slope = 1, intercept = 0, linetype = 2, color='gray70') +
     geom_point(data = dat2, 
                aes(x=MALE_AGE_AT_MID,
                    y= FEMALE_AGE_AT_MID,
@@ -853,6 +855,7 @@ FMlabels = FMdens %>%
 (
   allFMcolored_contours = 
     ggplot() +
+    geom_abline(slope = 1, intercept = 0, linetype = 2, color='gray70') +
     geom_point(data = dat2, aes(color = freq_FM, 
                                 x=MALE_AGE_AT_MID,
                                 y= FEMALE_AGE_AT_MID), 
@@ -904,6 +907,7 @@ nonelabels = nonedens %>%
 (
   allnonecolored_contours = 
     ggplot() +
+    geom_abline(slope = 1, intercept = 0, linetype = 2, color='gray70') +
     geom_point(data = dat2, aes(color = freq_0, 
                                 x=MALE_AGE_AT_MID,
                                 y= FEMALE_AGE_AT_MID), 
@@ -967,6 +971,7 @@ MFlabels = MFdens %>%
 (
   preMFcolored  = 
     ggplot() +
+    geom_abline(slope = 1, intercept = 0, linetype = 2, color='gray70') +
     geom_point(data = dat2fixed %>% 
                  filter(direction == 'M->F'), 
                aes(x=MALE_AGE_AT_MID,
@@ -1016,6 +1021,7 @@ FMlabels = FMdens %>%
 (
   preFMcolored  = 
     ggplot() +
+    geom_abline(slope = 1, intercept = 0, linetype = 2, color='gray70') +
     geom_point(data = dat2fixed %>% 
                  filter(direction == 'F->M'), 
                aes(x=MALE_AGE_AT_MID,
@@ -1065,6 +1071,7 @@ nonelabels = nonedens %>%
 (
   prenonecolored  = 
     ggplot() +
+    geom_abline(slope = 1, intercept = 0, linetype = 2, color='gray70') +
     geom_point(data = dat2fixed %>% 
                  filter(direction == 'none'), 
                aes(x=MALE_AGE_AT_MID,
@@ -1107,4 +1114,180 @@ ggarrange(ggarrange(preMFcolored,
           labels = c('A','B'))
 
 
+# 11/06/2022
+# presentation examples with MF surface only for better visualization----
 
+## (1) without contour lines----
+## MF using fixed model
+(
+  preMFcolored2  = 
+    ggplot() +
+    geom_abline(slope = 1, intercept = 0, linetype = 2, color='gray70') +
+    geom_point(data = dat2fixed %>% 
+                 filter(direction == 'M->F'), 
+               aes(x=MALE_AGE_AT_MID,
+                   y= FEMALE_AGE_AT_MID),
+               color = wes_palette("Darjeeling2")[2], size = 1.8) +
+    scale_x_continuous(limits = c(15,50)) +
+    scale_y_continuous(limits = c(15,50)) +
+    geom_text(data = dat2fixed, 
+              aes(x=MALE_AGE_AT_MID,
+                  y= FEMALE_AGE_AT_MID),
+              x=19, y=47, 
+              label = sprintf('Fixed:\nN=%s', sum(dat2fixed$direction=='M->F')), size = 6)+
+    # geom_contour(data = MFdens,
+    #              aes(x=x,y=y, z=density, col = ..level..),
+    #              breaks = MFlevels$level) +
+    # geom_text(data = MFlabels,
+    #           aes(x=x, y=y, label = prob_label, col = level),
+    #           size = 4) +
+    #scale_color_gradientn(colors = pal)+
+    scale_color_gradient(low = 'gray60', high = 'gray10')+
+    labs(x='male age', y = 'female age') +
+    theme_bw(base_size = 14)+
+    theme(legend.position = 'none',
+          plot.title = element_text(hjust = 0.5,
+                                    size = 22))
+)
+
+
+## MF using full model
+(
+  allMFcolored2 = 
+    ggplot() +
+    geom_abline(slope = 1, intercept = 0, linetype = 2, color='gray70') +
+    geom_point(data = dat2, 
+               aes(x=MALE_AGE_AT_MID,
+                   y= FEMALE_AGE_AT_MID,
+                   color = freq_MF)) +
+    scale_x_continuous(limits = c(15,50)) +
+    scale_y_continuous(limits = c(15,50)) +
+    scale_color_gradient(low = 'white', high=wes_palette("Darjeeling2")[2])+
+    geom_text(data = dat2, 
+              aes(x=MALE_AGE_AT_MID,
+                  y= FEMALE_AGE_AT_MID),
+              x=19, y=47,  
+              label = sprintf('Model:\nN=%s', nrow(dat2)), size = 6)+
+    #new_scale("color") +
+    # geom_contour(data = MFdens,
+    #              aes(x=x,y=y, z=density, col = ..level..),
+    #              breaks = MFlevels$level) +
+    # geom_text(data = MFlabels,
+    #           aes(x=x, y=y, label = prob_label, col = level),
+    #           size = 4) +
+    #scale_color_gradientn(colors = pal)+
+    #scale_color_gradient(low = 'gray60', high = 'gray10')+
+    labs(x='male age', y = 'female age', 
+         color='posterior\nM->F\nprobability') +
+    theme_bw(base_size = 14)+
+    theme(legend.position = 'right')
+)
+
+
+ggarrange(preMFcolored2, allMFcolored2,
+          ncol = 2,
+          widths = c(3, 4),
+          labels = c('',''))
+
+## (2) adding density contour lines
+## MF using fixed model
+## the data for MF densities from partial model
+MFdens = read_csv('fixThres_MF_density_MAP.csv')
+
+pal = wes_palette("Moonrise2", 3, type='continuous')
+MFlevels = MFdens %>% 
+  summarise(level = getLevel(x,y,density, prob = probs)) %>%
+  mutate(prob = probs)
+
+MFlabels = MFdens %>% 
+  full_join(MFlevels,by = character()) %>%
+  mutate(diffs = abs(density - level)) %>%
+  group_by(prob) %>%
+  filter(diffs == min(diffs)) %>%
+  slice(1) %>%
+  ungroup() %>%
+  mutate(prob_label = sprintf('%.0f%%', prob * 100))
+(
+  preMFcolored2_contour  = 
+    ggplot() +
+    geom_abline(slope = 1, intercept = 0, linetype = 2, color='gray70') +
+    geom_point(data = dat2fixed %>% 
+                 filter(direction == 'M->F'), 
+               aes(x=MALE_AGE_AT_MID,
+                   y= FEMALE_AGE_AT_MID),
+               color = wes_palette("Darjeeling2")[2], size = 1.8) +
+    scale_x_continuous(limits = c(15,50)) +
+    scale_y_continuous(limits = c(15,50)) +
+    geom_text(data = dat2fixed, 
+              aes(x=MALE_AGE_AT_MID,
+                  y= FEMALE_AGE_AT_MID),
+              x=19, y=47, 
+              label = sprintf('Fixed:\nN=%s', sum(dat2fixed$direction=='M->F')), size = 6)+
+    geom_contour(data = MFdens,
+                 aes(x=x,y=y, z=density, col = ..level..),
+                 breaks = MFlevels$level) +
+    geom_text(data = MFlabels,
+              aes(x=x, y=y, label = prob_label, col = level),
+              size = 4) +
+    scale_color_gradientn(colors = pal)+
+    scale_color_gradient(low = 'gray60', high = 'gray10')+
+    labs(x='male age', y = 'female age') +
+    theme_bw(base_size = 14)+
+    theme(legend.position = 'none',
+          plot.title = element_text(hjust = 0.5,
+                                    size = 22))
+)
+
+
+## MF using full model
+MFdens = read_csv('MF_density_MAP.csv')
+
+pal = wes_palette("Moonrise2", 3, type='continuous')
+MFlevels = MFdens %>% 
+  summarise(level = getLevel(x,y,density, prob = probs)) %>%
+  mutate(prob = probs)
+
+MFlabels = MFdens %>% 
+  full_join(MFlevels,by = character()) %>%
+  mutate(diffs = abs(density - level)) %>%
+  group_by(prob) %>%
+  filter(diffs == min(diffs)) %>%
+  slice(1) %>%
+  ungroup() %>%
+  mutate(prob_label = sprintf('%.0f%%', prob * 100))
+(
+  allMFcolored2_contour = 
+    ggplot() +
+    geom_abline(slope = 1, intercept = 0, linetype = 2, color='gray70') +
+    geom_point(data = dat2, 
+               aes(x=MALE_AGE_AT_MID,
+                   y= FEMALE_AGE_AT_MID,
+                   color = freq_MF)) +
+    scale_x_continuous(limits = c(15,50)) +
+    scale_y_continuous(limits = c(15,50)) +
+    scale_color_gradient(low = 'white', high=wes_palette("Darjeeling2")[2])+
+    geom_text(data = dat2, 
+              aes(x=MALE_AGE_AT_MID,
+                  y= FEMALE_AGE_AT_MID),
+              x=19, y=47,  
+              label = sprintf('Model:\nN=%s', nrow(dat2)), size = 6)+
+    new_scale("color") +
+    geom_contour(data = MFdens,
+                 aes(x=x,y=y, z=density, col = ..level..),
+                 breaks = MFlevels$level) +
+    geom_text(data = MFlabels,
+              aes(x=x, y=y, label = prob_label, col = level),
+              size = 4) +
+    scale_color_gradientn(colors = pal)+
+    scale_color_gradient(low = 'gray60', high = 'gray10')+
+    labs(x='male age', y = 'female age', 
+         color='posterior\nM->F\nprobability') +
+    theme_bw(base_size = 14)+
+    theme(legend.position = 'none')
+)
+
+
+ggarrange(preMFcolored2_contour, allMFcolored2_contour,
+          ncol = 2,
+          widths = c(3, 3),
+          labels = c('',''))
