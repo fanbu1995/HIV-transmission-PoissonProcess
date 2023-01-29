@@ -3,8 +3,10 @@
 # get posterior CIs as well
 
 
-library(tidyverse)
+library(dplyr)
 library(ggplot2)
+
+# set this to where simulation results (from Python code) are saved!
 setwd("~/Documents/Research_and_References/HIV_transmission_flow/")
 
 ## Posterior means

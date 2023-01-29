@@ -10,12 +10,14 @@
 # 6. combine the colored points (with post.probs) with contour lines of HDIs
 
 
-library(tidyverse)
+library(dplyr)
 library(bayestestR)
 library(xtable)
 library(wesanderson)
+
+## should set wd it to the path of results files and real data files! 
 # setwd('~/Documents/Research/HIV_transmission_flow/')
-# should set wd it to the path of results files and real data files 
+
 
 # 1. proportions of each type --------
 probs = read_csv('real_data_probs_chains.csv')
@@ -370,7 +372,7 @@ p_FM =
 
 # 5 & 6. colored 2D points (with post.probs) and contour lines of HDIs---
 
-# library(tidyverse)
+# library(dplyr)
 # library(ggplot2)
 library(patchwork)
 library(ggpubr)
