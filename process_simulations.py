@@ -9,7 +9,8 @@ Created on Thu Apr 29 20:54:48 2021
 #%%
 # process simulation results 
 import os
-os.chdir('/Users/fan/Documents/Research_and_References/HIV_transmission_flow/')
+#os.chdir('/Users/fan/Documents/Research_and_References/HIV_transmission_flow/')
+os.chdir('/Users/fan/Documents/Research/')
 
 from copy import copy#, deepcopy
 
@@ -34,61 +35,61 @@ import pickle as pkl
 
 # plot the posterior means of weightMFs (the weights on the largest two components: 25 vs 35)
 
-def poolWeights(res_dir, nums, last=500, savepath=None):
-    weight_means = np.zeros((len(nums), 2))
-    for i in range(len(nums)):
-        n = nums[i]
-        fpath = res_dir + 'weightMF_'+str(n)+'.pkl'
-        W = pkl.load(file=open(fpath,'rb'))
-        chain = np.array(W[-last:])[:,:2]
-        w_means = np.mean(chain, axis=0)
-        weight_means[i,:] = w_means
+# OUTDATED function (for one fixed sample size only!)
+
+# def poolWeights(res_dir, nums, last=500, savepath=None):
+#     weight_means = np.zeros((len(nums), 2))
+#     for i in range(len(nums)):
+#         n = nums[i]
+#         fpath = res_dir + 'weightMF_'+str(n)+'.pkl'
+#         W = pkl.load(file=open(fpath,'rb'))
+#         chain = np.array(W[-last:])[:,:2]
+#         w_means = np.mean(chain, axis=0)
+#         weight_means[i,:] = w_means
         
-    if max(nums) < 200:
-        # put weight on younger men to the left side
-        weight_means = weight_means[:,::-1]
+#     if max(nums) < 200:
+#         # put weight on younger men to the left side
+#         weight_means = weight_means[:,::-1]
         
-    data = [weight_means[:,0], weight_means[:,1]]
+#     data = [weight_means[:,0], weight_means[:,1]]
     
-    plt.figure(figsize=(6,4))
+#     plt.figure(figsize=(6,4))
         
-#    bplot = plt.boxplot(data, vert = True, patch_artist=True,
-#                labels=['younger','older'])
+# #    bplot = plt.boxplot(data, vert = True, patch_artist=True,
+# #                labels=['younger','older'])
     
-    vplot = plt.violinplot(data, showmeans=True, widths=0.5)
+#     vplot = plt.violinplot(data, showmeans=True, widths=0.5)
     
-    plt.grid(axis='y')
-    plt.xticks(np.arange(4), ['','younger', 'older',''])
-    plt.title('Proportions of transmissions from younger v.s. older men')
+#     plt.grid(axis='y')
+#     plt.xticks(np.arange(4), ['','younger', 'older',''])
+#     plt.title('Proportions of transmissions from younger v.s. older men')
         
-    # make the whiskers more obvious
-    vplot['cmins'].set_linewidths(3)
-    vplot['cmins'].set_color('black')
-    vplot['cmaxes'].set_linewidths(3)
-    vplot['cmaxes'].set_color('black')
-    vplot['cmeans'].set_linewidths(3)
-    vplot['cmeans'].set_color('black')
-    vplot['cbars'].set_linewidths(3)
-    vplot['cbars'].set_color('black')
+#     # make the whiskers more obvious
+#     vplot['cmins'].set_linewidths(3)
+#     vplot['cmins'].set_color('black')
+#     vplot['cmaxes'].set_linewidths(3)
+#     vplot['cmaxes'].set_color('black')
+#     vplot['cmeans'].set_linewidths(3)
+#     vplot['cmeans'].set_color('black')
+#     vplot['cbars'].set_linewidths(3)
+#     vplot['cbars'].set_color('black')
     
-#    colors = ['pink', 'lightblue']
-#    for patch, color in zip(bplot['boxes'], colors):
-#        patch.set_facecolor(color)
+# #    colors = ['pink', 'lightblue']
+# #    for patch, color in zip(bplot['boxes'], colors):
+# #        patch.set_facecolor(color)
         
-    if savepath is not None:
-        plt.savefig(savepath)  
-    plt.show()
+#     if savepath is not None:
+#         plt.savefig(savepath)  
+#     plt.show()
         
     
-    return
+#     return
 
 
 #%%
     
-poolWeights('trans_flow/', list(range(1,101)), savepath='weightsMF_less_youner_men.pdf')
-
-poolWeights('trans_flow/', list(range(101,201)), savepath='weightsMF_more_youner_men.pdf')
-
+#poolWeights('trans_flow/', list(range(1,101)), savepath='weightsMF_less_youner_men.pdf')
+#poolWeights('trans_flow/', list(range(101,201)), savepath='weightsMF_more_youner_men.pdf')
 
 #%%
 # 01/12/2022:
@@ -195,7 +196,8 @@ def savePoolWeights(res_dir, nums, last=500, stat = 'mean', run = 'later', getCI
     return pd.DataFrame(dat_dic)
         
 #%%
-pool_weights =  savePoolWeights('trans_flow_v3/', list(range(1,801)))   
+# older version post-processing code
+pool_weights =  savePoolWeights('trans_flow_v3/', list(range(1,801))) 
 
 # save to csv for use in R
 pool_weights.to_csv('pooled_weights.csv', index=False, index_label=False)
@@ -217,6 +219,28 @@ pool_weights.to_csv('pooled_weights_CIs.csv', index=False, index_label=False)
 pool_weights_400 = savePoolWeights('trans_flow/', list(range(1,201)), run = 'prev', getCI = True)
 pool_weights_400.to_csv('pooled_weights_CIs_400.csv', index=False, index_label=False)
 
+
+#%%
+# June 2023: update with sub-model simulations
+## N = 100, 200, 600, 800
+pool_weights =  savePoolWeights('trans_flow_v3/', list(range(1,801))) 
+pool_weights.to_csv('HIV_transmission_flow/pooled_weights_submodel.csv', index=False, index_label=False)
+
+## with median
+median_weights = savePoolWeights('trans_flow_v3/', list(range(1,801)), stat = 'median')
+median_weights.to_csv('HIV_transmission_flow/pooled_median_weights_submodel.csv', index = False, index_label=False) 
+
+## with posterior CIs
+pool_weights =  savePoolWeights('trans_flow_v3/', list(range(1,801)), getCI = True)
+pool_weights.to_csv('HIV_transmission_flow/pooled_weights_CIs_submodel.csv', index=False, index_label=False) 
+
+
+## N = 400 run
+median_weights_400 = savePoolWeights('trans_flow_400/', list(range(1,201)), stat = 'median', run = 'prev')
+median_weights_400.to_csv('HIV_transmission_flow/pooled_median_weights_400_submodel.csv', index = False, index_label=False)
+
+pool_weights_400 = savePoolWeights('trans_flow_400/', list(range(1,201)), run = 'prev', getCI = True)
+pool_weights_400.to_csv('HIV_transmission_flow/pooled_weights_CIs_400_submodel.csv', index=False, index_label=False)
 
 #%%
 
@@ -361,6 +385,7 @@ def savePoolCs(res_dir, nums, last=500, stat = 'mean', run = 'later', getCI = Fa
     return pd.DataFrame(dat_dic)
 
 #%%
+# Jan 2022: old run with full model
 # 01/12/2022: pool and save
 pool_Cs =  savePoolCs('trans_flow_v3/', list(range(1,801)))   
 
@@ -386,6 +411,25 @@ pool_Cs_CIs.to_csv('pooled_Cs_CIs.csv', index=False, index_label=False)
 pool_Cs_CIs_400 = savePoolCs('trans_flow/', list(range(1,201)), run = 'prev', getCI = True)
 pool_Cs_CIs_400.to_csv('pooled_Cs_CIs_400.csv', index=False, index_label=False)
 
+
+#%%
+# June 2023: new run with sub model
+# N = 100, 200, 600, 800 runs
+pool_Cs =  savePoolCs('trans_flow_v3/', list(range(1,801)))   
+pool_Cs.to_csv('HIV_transmission_flow/pooled_Cs_submodel.csv', index=False, index_label=False)
+
+median_Cs = savePoolCs('trans_flow_v3/', list(range(1,801)), stat = 'median')   
+median_Cs.to_csv('HIV_transmission_flow/pooled_median_Cs_submodel.csv', index=False, index_label=False)
+
+pool_Cs_CIs = savePoolCs('trans_flow_v3/', list(range(1,801)), getCI = True)
+pool_Cs_CIs.to_csv('HIV_transmission_flow/pooled_Cs_CIs_submodel.csv', index=False, index_label=False)
+
+# N = 400 runs
+median_Cs_400 = savePoolCs('trans_flow_400/', list(range(1,201)), stat = 'median', run = 'prev') 
+median_Cs_400.to_csv('HIV_transmission_flow/pooled_median_Cs_400_submodel.csv', index=False, index_label=False)
+
+pool_Cs_CIs_400 = savePoolCs('trans_flow_400/', list(range(1,201)), run = 'prev', getCI = True)
+pool_Cs_CIs_400.to_csv('HIV_transmission_flow/pooled_Cs_CIs_400_submodel.csv', index=False, index_label=False)
 
 
 #%%
