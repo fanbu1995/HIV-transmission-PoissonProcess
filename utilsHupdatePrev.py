@@ -160,6 +160,44 @@ def initializeDirectScore(D, inds, Dthres = 0.5):
     
     return D, indsMF, indsFM, muD, muNegD, gammaD
 
+## 05/08/2023 update:
+## add another initialization function to mimic Xioayue's method
+## spilt D scores by two thresholds and discard the middle section...
+
+def initializeDirectScore2(D, inds, Dthres = [0.33, 0.67]):
+    '''
+    Initialize direction score stuff based on thresholding results of linked score;
+    Returns:
+        - logit transformed direction score
+        - indices of pairs that are selected in each point process
+        - initial value of muNegD, muD, gammaD (inverse of sigma^2_d)
+    D: length N linked scores of all pairs (in same order as L)
+    Dthres: two thresholds (in a list) for allocating points to MF and FM surfaces
+    
+    '''
+    
+    # get MF and FM indices first
+    inds = set(inds)
+    indsMF = inds & set(np.where(D > Dthres[1])[0])
+    indsFM = inds & set(np.where(D < Dthres[0])[0])
+    # indsFM = inds - indsMF
+    
+    indsMF = list(indsMF)
+    indsFM = list(indsFM)
+    
+    # and then transform and get mixture stuff
+    D = logit(D)
+    
+    muD = np.mean(D[indsMF])
+    muNegD = np.mean(D[indsFM])
+    
+    #Dsel = D[list(inds)]
+    Dsel = D[indsMF + indsFM]
+    deMean = np.where(Dsel > 0, Dsel-muD, Dsel-muNegD)
+    gammaD = 1/np.mean(deMean ** 2)
+    
+    return D, indsMF, indsFM, muD, muNegD, gammaD
+
 
 def updateDModel(D, indsMF, indsFM, muD, muNegD, gammaD, gammaPrior):
     '''

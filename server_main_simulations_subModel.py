@@ -702,7 +702,7 @@ import pickle as pkl
 
 import sys
 
-os.chdir('/hpc/home/fb75/trans_flow_v3/')
+os.chdir('/hpc/home/fb75/trans_flow_400/')
 
 array_id = sys.argv[1]
 
